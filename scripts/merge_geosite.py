@@ -102,7 +102,7 @@ def write_sha256_file(
     )
 
     checksum_path.write_text(
-        f"{digest}  {path.name}\n",
+        f"{digest}\n",
         encoding="utf-8",
     )
 

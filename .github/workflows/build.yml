@@ -97,7 +97,8 @@ jobs:
           cd dist
 
           sha256sum geoip.dat \
-            > geoip.dat.sha256
+              | awk '{print $1}' \
+              > geoip.dat.sha256
 
       - name: Validate build artifacts
         run: |
@@ -116,9 +117,17 @@ jobs:
 
           cd dist
 
-          sha256sum -c geosite.dat.sha256
-          sha256sum -c geoip.dat.sha256
-          sha256sum -c roscom-domains.json.sha256
+          test \
+              "$(sha256sum geosite.dat | awk '{print $1}')" \
+              = "$(tr -d '\r\n' < geosite.dat.sha256)"
+
+            test \
+              "$(sha256sum geoip.dat | awk '{print $1}')" \
+              = "$(tr -d '\r\n' < geoip.dat.sha256)"
+
+            test \
+              "$(sha256sum roscom-domains.json | awk '{print $1}')" \
+              = "$(tr -d '\r\n' < roscom-domains.json.sha256)"
 
           echo
           echo "Build artifacts:"
