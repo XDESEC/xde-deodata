@@ -84,26 +84,49 @@ jobs:
 
       - name: Copy GeoIP
         run: |
+          set -euo pipefail
+
           cp \
             upstream/loyalsoldier-geoip.dat \
             dist/geoip.dat
 
-      - name: Generate checksums
+      - name: Generate GeoIP checksum
         run: |
           set -euo pipefail
 
           cd dist
 
-          sha256sum geosite.dat \
-            > geosite.dat.sha256
-
           sha256sum geoip.dat \
             > geoip.dat.sha256
 
+      - name: Validate build artifacts
+        run: |
+          set -euo pipefail
+
+          test -s dist/geosite.dat
+          test -s dist/geosite.dat.sha256
+
+          test -s dist/geoip.dat
+          test -s dist/geoip.dat.sha256
+
+          test -s dist/roscom-domains.json
+          test -s dist/roscom-domains.json.sha256
+
+          test -s dist/manifest.json
+
+          cd dist
+
+          sha256sum -c geosite.dat.sha256
+          sha256sum -c geoip.dat.sha256
+          sha256sum -c roscom-domains.json.sha256
+
+          echo
+          echo "Build artifacts:"
           ls -lh
 
-          cat geosite.dat.sha256
-          cat geoip.dat.sha256
+          echo
+          echo "Manifest:"
+          cat manifest.json
 
       - name: Prepare release branch
         env:
@@ -114,32 +137,26 @@ jobs:
           rm -rf /tmp/xde-release
           mkdir -p /tmp/xde-release
 
-          cp dist/geosite.dat \
-            /tmp/xde-release/
-
-          cp dist/geosite.dat.sha256 \
-            /tmp/xde-release/
-
-          cp dist/geoip.dat \
-            /tmp/xde-release/
-
-          cp dist/geoip.dat.sha256 \
-            /tmp/xde-release/
-
-          cp dist/manifest.json \
+          # Публикуем весь dist.
+          # Новые build artifacts в будущем
+          # не придётся добавлять сюда вручную.
+          cp -a dist/. \
             /tmp/xde-release/
 
           cd /tmp/xde-release
 
           git init
+
           git config user.name \
             "github-actions[bot]"
+
           git config user.email \
             "41898282+github-actions[bot]@users.noreply.github.com"
 
           git checkout -b release
 
           git add .
+
           git commit -m \
             "Update geodata $(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
@@ -154,26 +171,23 @@ jobs:
       - name: Purge jsDelivr cache
         continue-on-error: true
         run: |
-          curl \
-            --fail \
-            --silent \
-            --show-error \
-            "https://purge.jsdelivr.net/gh/${GITHUB_REPOSITORY}@release/geosite.dat"
+          set +e
 
-          curl \
-            --fail \
-            --silent \
-            --show-error \
-            "https://purge.jsdelivr.net/gh/${GITHUB_REPOSITORY}@release/geosite.dat.sha256"
+          for file in \
+            geosite.dat \
+            geosite.dat.sha256 \
+            geoip.dat \
+            geoip.dat.sha256 \
+            roscom-domains.json \
+            roscom-domains.json.sha256 \
+            manifest.json
+          do
+            echo "Purging ${file}"
 
-          curl \
-            --fail \
-            --silent \
-            --show-error \
-            "https://purge.jsdelivr.net/gh/${GITHUB_REPOSITORY}@release/geoip.dat"
-
-          curl \
-            --fail \
-            --silent \
-            --show-error \
-            "https://purge.jsdelivr.net/gh/${GITHUB_REPOSITORY}@release/geoip.dat.sha256"
+            curl \
+              --fail \
+              --silent \
+              --show-error \
+              "https://purge.jsdelivr.net/gh/${GITHUB_REPOSITORY}@release/${file}" \
+              || true
+          done
