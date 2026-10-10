@@ -1,0 +1,37 @@
+{
+  "geosite": {
+    "file": "geosite.dat",
+    "sha256": "386db6454caf327d8b2a4014311951408911e200b3cf1aa802aabeec73ee07dc",
+    "sha256_file": "geosite.dat.sha256",
+    "size": 11209025
+  },
+  "hybrid_categories": 1575,
+  "loyalsoldier_categories": 1552,
+  "required_loyalsoldier": [
+    "GOOGLE-GEMINI",
+    "SOUNDCLOUD",
+    "YOUTUBE"
+  ],
+  "required_roscom": [
+    "ROSCOM-CATEGORY-ADS",
+    "ROSCOM-CATEGORY-RU",
+    "ROSCOM-WHITELIST"
+  ],
+  "roscom_added": 23,
+  "roscom_categories": 23,
+  "roscom_domains": {
+    "categories": 23,
+    "file": "roscom-domains.json",
+    "required_category_sizes": {
+      "roscom-category-ads": 2,
+      "roscom-category-ru": 56,
+      "roscom-whitelist": 465
+    },
+    "rules": 3108,
+    "sha256": "4e9529f8b481766e50f7971434bf3989c88ff6797e7e3fad9e9f787895566faa",
+    "sha256_file": "roscom-domains.json.sha256",
+    "size": 80759
+  },
+  "sha256": "386db6454caf327d8b2a4014311951408911e200b3cf1aa802aabeec73ee07dc",
+  "size": 11209025
+}
